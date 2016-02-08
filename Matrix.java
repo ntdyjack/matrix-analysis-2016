@@ -7,6 +7,16 @@ package matrixanalysis;
  *  Execution:    java Matrix
  *
  *  A bare-bones immutable data type for M-by-N matrices.
+ *  
+ *  Added functions (Nathan Dyjack + Nik Wojtalewicz)
+ *  
+ *  scalar multiplication of matrices .scalar()
+ *  get specified column(s) and row(s) from a matrix .getCol()
+ *  set values of specified rows/columns in a matrix .setCol()
+ *  inner product of two column vectors .inner()
+ *  A=QR factorization (the matrix Q is the gram-schmidt orthogonal matrix) .factor()
+ *  
+ *  
  *
  ******************************************************************************/
 
@@ -291,17 +301,21 @@ final public class Matrix {
     			q = q.minus(z);
 			}
 			
-			
 			scaleFactor = Math.sqrt(q.inner(q));
-			if (scaleFactor < 0.001) 
-				 continue;
-			else Q.setCol(i, q.scale( 1 / scaleFactor));
-			R.data[i][k] = Q.getCol(i).inner(V.getCol(i));
-			
-			for(int j=0; j<k; ++j) {
-				R.data[j][i] = Q.getCol(j).inner(V.getCol(i));
+			if (scaleFactor < 0.001){
+				for(int j=0; j<k; ++j) {
+					R.data[j][i] = Q.getCol(j).inner(V.getCol(i)); // set the off diagonal entries of the ith column of R
+				}
+				 continue; 
 			}
 			
+			else Q.setCol(i, q.scale( 1 / scaleFactor));
+			
+			R.data[i][k] = Q.getCol(i).inner(V.getCol(i)); // set the diagonal entry of R
+			
+			for(int j=0; j<k; ++j) {
+				R.data[j][i] = Q.getCol(j).inner(V.getCol(i)); // set the off diagonal entries of the ith column of R
+			}
 			
 		}
 		
@@ -314,10 +328,12 @@ final public class Matrix {
     // test client
     public static void main(String[] args) {
 
-        //double[][] a = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
+        double[][] a = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
         //Matrix A = new Matrix(a);
         Matrix A = Matrix.random(3,3);
+        System.out.println("A =");
         A.show();
+        System.out.println();
         
         
         Matrix[] L = A.factor(); // call QR factorization
@@ -331,4 +347,3 @@ final public class Matrix {
         B.show();
     }
 }
-
