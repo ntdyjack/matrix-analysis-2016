@@ -7,6 +7,16 @@ package matrixanalysis;
  *  Execution:    java Matrix
  *
  *  A bare-bones immutable data type for M-by-N matrices.
+ *  
+ *  Added functions (Nathan Dyjack + Nik Wojtalewicz)
+ *  
+ *  scalar multiplication of matrices .scalar()
+ *  get specified column(s) and row(s) from a matrix .getCol()
+ *  set values of specified rows/columns in a matrix .setCol()
+ *  inner product of two column vectors .inner()
+ *  A=QR factorization (the matrix Q is the gram-schmidt orthogonal matrix) .factor()
+ *  
+ *  
  *
  ******************************************************************************/
 
@@ -319,8 +329,8 @@ final public class Matrix {
     public static void main(String[] args) {
 
         double[][] a = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
-        Matrix A = new Matrix(a);
-        //Matrix A = Matrix.random(3,3);
+        //Matrix A = new Matrix(a);
+        Matrix A = Matrix.random(3,3);
         System.out.println("A =");
         A.show();
         System.out.println();
