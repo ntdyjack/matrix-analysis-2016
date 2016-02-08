@@ -1,3 +1,5 @@
+package matrixanalysis;
+
 
 
 /******************************************************************************
@@ -256,7 +258,7 @@ final public class Matrix {
     			scaleFactor = q.inner(R.getCol(j));
     			z.setCol(0, R.getCol(j));
     			q = q.minus(z.scale(scaleFactor)); // Ugh
-    			q.show();
+    			
     		}
     		
     		scaleFactor = Math.sqrt(q.inner(q));
@@ -268,26 +270,65 @@ final public class Matrix {
     }
 
     
+	public Matrix[] factor(){ // returns gramschmidt / QR decomposition
+		Matrix V = this;
+		Matrix Q = new Matrix(V.M,V.N); // Declare Orthonormal Matrix Q (ie the gramschmidt)
+		Matrix R = new Matrix(V.M,V.N); // Declare UT matrix of operations R
 
+		Matrix q = new Matrix(V.M, 1);  // A column of V to make orthonormal
+		Matrix z = new Matrix(V.M, 1);  //
+		
+		double scaleFactor;
+		
+		int i; int k;
+		for(i=0, k=0; i<V.N; i++, k++){ // loop over number of matrix
+			q = V.getCol(i);  // grab the ith column of V
+	
+			for(int j=0; j<k; ++j) {
+				z = Q.getCol(j);
+				scaleFactor = V.getCol(i).inner(z); 
+				z = z.scale(scaleFactor / z.inner(z) );
+    			q = q.minus(z);
+			}
+			
+			
+			scaleFactor = Math.sqrt(q.inner(q));
+			if (scaleFactor < 0.001) 
+				 continue;
+			else Q.setCol(i, q.scale( 1 / scaleFactor));
+			R.data[i][k] = Q.getCol(i).inner(V.getCol(i));
+			
+			for(int j=0; j<k; ++j) {
+				R.data[j][i] = Q.getCol(j).inner(V.getCol(i));
+			}
+			
+			
+		}
+		
+		Matrix[] a = new Matrix[2];
+		a[0] = Q; a[1] = R;
+		return (a);
+	}
+    
+    
     // test client
     public static void main(String[] args) {
-        double[][] d = { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9} };
-        Matrix D = new Matrix(d);
-        D.show();        
-        
-        double[][] a = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
-        Matrix A = new Matrix(a);
+
+        //double[][] a = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
+        //Matrix A = new Matrix(a);
+        Matrix A = Matrix.random(3,3);
         A.show();
         
         
-        
-        Matrix X = A.GramSchmidt();
-        System.out.println("\n\n Printing X");
-        X.show();
-        Matrix q = X.getCol(1);
-        Matrix z = X.getCol(0);
-        System.out.println((double) q.inner(z));
-        System.out.println((double) q.inner(q));
+        Matrix[] L = A.factor(); // call QR factorization
+        Matrix Q = L[0]; Matrix R = L[1];
+        System.out.println("Q =");
+		Q.show();
+		System.out.println("R =");
+		R.show();
+        Matrix B = Q.times(R);
+		System.out.println("A = QR");
+        B.show();
     }
 }
 
