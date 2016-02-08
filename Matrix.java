@@ -171,7 +171,7 @@ final public class Matrix {
     
     public void setCol(int colNum, Matrix Col) {
     	Matrix A = this;
-    	if (colNum > A.M || colNum < 0) throw new RuntimeException("Column number "
+    	if (colNum > A.N || colNum < 0) throw new RuntimeException("Column number "
     			+ "must be less than number of columns and greater than zero");
     	if (Col.N > 1) throw new RuntimeException("Column to add must be column vector");
     	
@@ -189,11 +189,13 @@ final public class Matrix {
     	return col;	
     }
 
-    public Matrix getCol( int column ) {
+    public Matrix getCol( int column_num ) {
+    	if(column_num > N || column_num < 0 ) throw new RuntimeException("Column Number "
+    			+ "must be less than number of columns in A and bigger than 0");
 		Matrix col = new Matrix(M, 1);
 
 		for (int j = 0; j < M; j++){
-			col.data[j][0] = data[j][column];
+			col.data[j][0] = data[j][column_num];
 		}		
 	return col;	
     }    
@@ -208,6 +210,15 @@ final public class Matrix {
 		return row;
     }    
     
+    public Matrix getRow( int row_num )  {
+		Matrix row = new Matrix(1, N);
+		
+		for (int j = 0; j < N; j++){
+			row.data[0][j] = data[row_num][j];
+		}
+		return row;
+    }    
+    
     public Matrix scale(double a) {
     	Matrix V = this; Matrix B = new Matrix(V.M, V.N);
     	for(int i=0; i<V.M; ++i) {
@@ -218,7 +229,7 @@ final public class Matrix {
     	return B;
     }
     
-    public double Inner(Matrix W) {
+    public double inner(Matrix W) {
     	Matrix V = this;
     	if (V.N != 1 && W.N != 1) throw new RuntimeException("Illegal Matrix Dimensions");
     	if (V.M != W.M) throw new RuntimeException("Dimensions must be same");
@@ -232,81 +243,51 @@ final public class Matrix {
     // Take base matrix and apply Gram Schimdt to its columns
     public Matrix GramSchmidt(){
     	Matrix V = this;
-    	Matrix Zero = new Matrix(V.M, 1);
     	Matrix R = new Matrix(V.M,V.N); // Declare Orthonormal Matrix R
-    	Matrix q = new Matrix(V.M, 1);
-    	double norm;
+    	Matrix q = new Matrix(V.M, 1);  // A column of V to make orthonormal
+    	Matrix z = new Matrix(V.M, 1);  // A column of R
+    	double scaleFactor;
     	
     	int i; int k;
     	for(i=0, k=0; i<V.N; i++, k++){ // loop over number of matrix
     		q.setCol(0, V.getCol(i));
-//    		R.setCol(i, V.getCol(i));
-//    		q.T().show(); V.getCol(i).T().show(); System.out.println(); 
+
     		for(int j=0; j<k; ++j) {
-    			q.setCol(0, q.minus( q.scale( q.Inner(V.getCol(i)) ))); // Ugh
-//    			R.setCol(i, );
+    			scaleFactor = q.inner(R.getCol(j));
+    			z.setCol(0, R.getCol(j));
+    			q = q.minus(z.scale(scaleFactor)); // Ugh
+    			q.show();
     		}
     		
-    		if(q.eq(Zero)) q.setCol(0, Zero);
-    		else {
-    			norm = Math.sqrt(q.Inner(q));
-    			q.setCol(0, q.scale( 1 / norm));
-    		}
-    		R.setCol(i, q);
-//    		q.T().show();
-//    		System.out.println();
+    		scaleFactor = Math.sqrt(q.inner(q));
+    		if (scaleFactor < 0.01) 
+    			 continue;
+    		else R.setCol(i, q.scale( 1 / scaleFactor));
     	}
-    	
     	return R;
-    	}
+    }
 
     
 
     // test client
     public static void main(String[] args) {
-        double[][] d = { { 1, 2, 3 }, { 4, 5, 6 }, { 9, 1, 3} };
+        double[][] d = { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9} };
         Matrix D = new Matrix(d);
         D.show();        
-        System.out.println();
-
-        Matrix A = Matrix.random(5, 5);
         
-        //Matrix C = Matrix.identity(5);
-        
-        Matrix b = Matrix.random(5, 1);
-        
-        //Matrix x = A.solve(b);
-        
-        int[] lol = new int [2];
-        lol[0] = 3; lol[1] = 4;
-//        A.GramSchmidt(D);
+        double[][] a = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
+        Matrix A = new Matrix(a);
         A.show();
-        System.out.println();
-//        Matrix L = A.getColumns(lol);
-//        L.show();
-//        A.getRows(lol);
-//        int[] lol0 = new int [1]; int[] lol1 = new int [1];
-//        lol0[0] = 0; lol1[0] = 1;
-//        Matrix V = A.getColumn(0); Matrix W = A.getColumn(1);
-//        V.show();
-//        System.out.println();
-//        W = W.transpose();
-//        W.show();
         
-//        System.out.println((double) V.Inner(W));
-//        b.show();
-//        System.out.println((Matrix) A.times(C));
-//        int i = 0;
-//        A.setCol(i, b);
-//        A.show();
-        System.out.println();
         
-        System.out.println( (double) A.getCol((int) 0).Inner(A.getCol((int) 0)));
         
         Matrix X = A.GramSchmidt();
+        System.out.println("\n\n Printing X");
         X.show();
-        Matrix q = X.getCol(4);
-        System.out.println((double) q.Inner(q));
+        Matrix q = X.getCol(1);
+        Matrix z = X.getCol(0);
+        System.out.println((double) q.inner(z));
+        System.out.println((double) q.inner(q));
     }
 }
 
