@@ -328,9 +328,9 @@ final public class Matrix {
     // test client
     public static void main(String[] args) {
 
-        double[][] a = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
+        //double[][] a = { {1, 2, 3, 4}, {4, 5, 6, 4}, {7, 8, 9, 4} };
         //Matrix A = new Matrix(a);
-        Matrix A = Matrix.random(3,3);
+       Matrix A = Matrix.random(3,3);
         System.out.println("A =");
         A.show();
         System.out.println();
