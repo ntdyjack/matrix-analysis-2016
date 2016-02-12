@@ -11,10 +11,11 @@ package matrixanalysis;
  *  Added functions (Nathan Dyjack + Nik Wojtalewicz)
  *  
  *  scalar multiplication of matrices .scalar()
- *  get specified column(s) and row(s) from a matrix .getCol()
- *  set values of specified rows/columns in a matrix .setCol()
+ *  get specified column(s) and row(s) from a matrix .getCol/Row()
+ *  set values of specified rows/columns in a matrix .setCol/Row()...
  *  inner product of two column vectors .inner()
  *  A=QR factorization (the matrix Q is the gram-schmidt orthogonal matrix) .factor()
+ *  A=LU factorization (lower/upper triangular matrices)
  *  
  *  
  *
@@ -191,6 +192,17 @@ final public class Matrix {
     		A.data[i][colNum] = Col.data[i][0];
     }
     
+    
+    public void setRow(int rowNum, Matrix Row) {
+    	Matrix A = this;
+    	if (rowNum > A.N || rowNum < 0) throw new RuntimeException("Column number "
+    			+ "must be less than number of columns and greater than zero");
+    	if (Row.M > 1) throw new RuntimeException("Column to add must be column vector");
+    	
+    	for (int i = 0; i < A.N; ++i) 
+    		A.data[rowNum][i] = Row.data[0][i];
+    }
+    
     public Matrix getCols( int[] columns ) {
     	Matrix col = new Matrix(M, columns.length);
     	for (int i=0; i < columns.length; ++i){
@@ -253,32 +265,80 @@ final public class Matrix {
     }
     
     // Take base matrix and apply Gram Schimdt to its columns
-    public Matrix GramSchmidt(){
+//    public Matrix GramSchmidt(){
+//    	Matrix V = this;
+//    	Matrix R = new Matrix(V.M,V.N); // Declare Orthonormal Matrix R
+//    	Matrix q = new Matrix(V.M, 1);  // A column of V to make orthonormal
+//    	Matrix z = new Matrix(V.M, 1);  // A column of R
+//    	double scaleFactor;
+//    	
+//    	int i; int k;
+//    	for(i=0, k=0; i<V.N; i++, k++){ // loop over number of matrix
+//    		q.setCol(0, V.getCol(i));
+//
+//    		for(int j=0; j<k; ++j) {
+//    			scaleFactor = q.inner(R.getCol(j));
+//    			z.setCol(0, R.getCol(j));
+//    			q = q.minus(z.scale(scaleFactor)); // Ugh
+//    			
+//    		}
+//    		
+//    		scaleFactor = Math.sqrt(q.inner(q));
+//    		if (scaleFactor < 0.01) 
+//    			 continue;
+//    		else R.setCol(i, q.scale( 1 / scaleFactor));
+//    	}
+//    	return R;
+//    }
+
+    
+    public Matrix[] LU(){
     	Matrix V = this;
-    	Matrix R = new Matrix(V.M,V.N); // Declare Orthonormal Matrix R
-    	Matrix q = new Matrix(V.M, 1);  // A column of V to make orthonormal
-    	Matrix z = new Matrix(V.M, 1);  // A column of R
-    	double scaleFactor;
+    	Matrix L = new Matrix(V.M,V.N);
+    	Matrix U = new Matrix(V.M,V.N);
     	
-    	int i; int k;
-    	for(i=0, k=0; i<V.N; i++, k++){ // loop over number of matrix
-    		q.setCol(0, V.getCol(i));
-
-    		for(int j=0; j<k; ++j) {
-    			scaleFactor = q.inner(R.getCol(j));
-    			z.setCol(0, R.getCol(j));
-    			q = q.minus(z.scale(scaleFactor)); // Ugh
-    			
-    		}
-    		
-    		scaleFactor = Math.sqrt(q.inner(q));
-    		if (scaleFactor < 0.01) 
-    			 continue;
-    		else R.setCol(i, q.scale( 1 / scaleFactor));
+    	U.setRow(0, V.getRow(0)); // set the first row of U
+    	
+    	for(int i = 0; i<V.M; i++){ // set first column of L
+    		L.data[i][0] = V.data[i][0]/U.data[0][0];
     	}
-    	return R;
-    }
+    	
 
+    	int i; int j; int k; double sum = 0;
+    	for(i=1;i<V.M;i++){
+    		
+    		if(i>1){ //set the off diagonals of L
+    			for(j=1;j<i;j++){
+    			sum=0;
+    			k=0;
+    			while(k<j){
+    				sum += U.data[k][j]*L.data[i][k];
+    				k++;}
+    			L.data[i][j]= (1/U.data[j][j])*(V.data[i][j] - sum);}
+    			}
+    		
+    		if(i>0 && i<V.M-1){ // set the off diagonals of U
+    			for(j=i+1;j<V.M;j++){
+	    			sum = 0;
+	    			k=0;
+	    			while(k<i){
+	    				sum += U.data[k][j]*L.data[i][k];
+	    				k++;}
+		    		U.data[i][j] = V.data[i][j] - sum;}
+    			}
+
+	    		sum=0; //j=i; // set the diagonal entry of U and L
+	    		for( k=0; k<i; k++){ 
+	    			sum += U.data[k][i]*L.data[i][k]; 
+	    		}
+	    		U.data[i][i]= V.data[i][i] - sum; //uij = aij - sum(k to i-1) ukj*lik
+	    		L.data[i][i]= 1; //(1/U.data[j][j])*(V.data[i][j] - sum); //lij = 1/uij * (aij - sum(k to j-1) ukj*lik
+	    		
+    		}
+		Matrix[] a = new Matrix[2];
+		a[0] = L; a[1] = U;
+		return (a);
+    }
     
 	public Matrix[] factor(){ // returns gramschmidt / QR decomposition
 		Matrix V = this;
@@ -328,24 +388,25 @@ final public class Matrix {
     // test client
     public static void main(String[] args) {
 
-        //double[][] a = { {1, 2, 3, 4}, {4, 5, 6, 4}, {7, 8, 9, 4} };
+//        double[][] a = { {1, 2, 3, 4}, {4, 5, 6, 4}, {7, 8, 9, 4} };
+//        Matrix A = new Matrix(a);
+        //double[][] a = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
         //Matrix A = new Matrix(a);
-        double[][] a = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
-        //Matrix A = new Matrix(a);
-        Matrix A = Matrix.random(3,3);
+    	Matrix A = Matrix.random(4,4);
         System.out.println("A =");
         A.show();
         System.out.println();
         
-        
-        Matrix[] L = A.factor(); // call QR factorization
-        Matrix Q = L[0]; Matrix R = L[1];
-        System.out.println("Q =");
-		Q.show();
-		System.out.println("R =");
-		R.show();
-        Matrix B = Q.times(R);
-		System.out.println("A = QR");
+        Matrix[] Q = A.LU(); // call QR factorization
+        Matrix L = Q[0]; Matrix U= Q[1];
+        System.out.println("L =");
+        L.show();
+        System.out.println();
+        System.out.println("U =");
+        U.show();
+        System.out.println();
+        Matrix B = L.times(U);
+        System.out.println("LU =");
         B.show();
     }
 }
