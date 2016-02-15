@@ -45,7 +45,17 @@ final public class Matrix {
 
     // copy constructor
     private Matrix(Matrix A) { this(A.data); }
-
+    
+    public int[] shape() {
+    	int[] shape = new int[2];
+    	shape[0] = this.M; shape[1] = this.N;
+    	return shape;
+    }
+    
+    public void setVal(int i, int j, double val) { this.data[i][j] = val; }
+    
+    public double val(int i, int j) { return this.data[i][j]; }
+    
     // create and return a random M-by-N matrix with values between 0 and 1
     public static Matrix random(int M, int N) {
         Matrix A = new Matrix(M, N);
@@ -299,9 +309,11 @@ final public class Matrix {
     	
     	U.setRow(0, V.getRow(0)); // set the first row of U
     	
-    	for(int i = 0; i<V.M; i++){ // set first column of L
-    		L.data[i][0] = V.data[i][0]/U.data[0][0];
-    	}
+    	L.setCol(0, V.getCol(0).scale(1 / U.val(0, 0)));
+    	
+//    	for(int i = 0; i<V.M; i++){ // set first column of L
+//    		L.data[i][0] = V.data[i][0]/U.data[0][0];
+//    	}
     	
 
     	int i; int j; int k; double sum = 0;
@@ -313,9 +325,10 @@ final public class Matrix {
     			k=0;
     			while(k<j){
     				sum += U.data[k][j]*L.data[i][k];
-    				k++;}
-    			L.data[i][j]= (1/U.data[j][j])*(V.data[i][j] - sum);}
+    				k++;
     			}
+    			L.data[i][j]= (1/U.data[j][j])*(V.data[i][j] - sum);}
+    		}
     		
     		if(i>0 && i<V.M-1){ // set the off diagonals of U
     			for(j=i+1;j<V.M;j++){
@@ -323,9 +336,10 @@ final public class Matrix {
 	    			k=0;
 	    			while(k<i){
 	    				sum += U.data[k][j]*L.data[i][k];
-	    				k++;}
+	    				k++;
+	    			}
 		    		U.data[i][j] = V.data[i][j] - sum;}
-    			}
+    		}
 
 	    		sum=0; //j=i; // set the diagonal entry of U and L
 	    		for( k=0; k<i; k++){ 
@@ -408,5 +422,7 @@ final public class Matrix {
         Matrix B = L.times(U);
         System.out.println("LU =");
         B.show();
+        
+        System.out.format("%d%n", B.shape()[0]);
     }
 }
