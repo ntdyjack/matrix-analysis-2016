@@ -24,7 +24,7 @@ package matrixanalysis;
 final public class Matrix {
     private final int M;             // number of rows
     private final int N;             // number of columns
-    private final double[][] data;   // M-by-N array
+    public final double[][] data;   // M-by-N array
 
     // create M-by-N matrix of 0's
     public Matrix(int M, int N) {
@@ -46,11 +46,11 @@ final public class Matrix {
     // copy constructor
     private Matrix(Matrix A) { this(A.data); }
     
-    public int[] shape() {
-    	int[] shape = new int[2];
-    	shape[0] = this.M; shape[1] = this.N;
-    	return shape;
-    }
+    
+    public int M() { return this.M; }
+    public int N() { return this.N; }
+    
+    
     
     public void setVal(int i, int j, double val) { this.data[i][j] = val; }
     
@@ -423,6 +423,6 @@ final public class Matrix {
         System.out.println("LU =");
         B.show();
         
-        System.out.format("%d%n", B.shape()[0]);
+//        System.out.format("%d%n", B.shape()[0]);
     }
 }
