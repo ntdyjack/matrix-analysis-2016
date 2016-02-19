@@ -5,13 +5,28 @@ final public class QR {
 	private final Matrix V;
 	private final Matrix Q;
 	private final Matrix R;
+	private final Matrix Eigen;
 	
     public QR(Matrix A) {
     	this.V = A;
     	int N = A.N(); int M = A.M();
     	this.Q = new Matrix(M,N);
     	this.R = new Matrix(N,N);
-    }	
+    	this.Eigen = new Matrix(M,N);
+    }
+    
+    
+    public Matrix eigen(int nIter){
+    	int i = 0;
+		Matrix Eigen = this.Eigen;
+    	QR L = new QR(V);
+    	while(i++ < nIter){
+    		L.factor();
+    		Eigen = L.R().times(L.Q());
+    	}
+    	System.out.println("Maximum Iterations Reached \n");
+    	return Eigen;
+    }
 
 	public void factor(){ // returns gramschmidt / QR decomposition
 		//Matrix V = this;
@@ -19,9 +34,6 @@ final public class QR {
 		int N = V.N();
 		Matrix Q = this.Q;
 		Matrix R = this.R;
-//		Matrix Q = new Matrix(M,N); // Declare Orthonormal Matrix Q (ie the gramschmidt)
-//		Matrix R = new Matrix(M,N); // Declare UT matrix of operations R
-
 		Matrix q = new Matrix(M, 1);  // A column of V to make orthonormal
 		Matrix z = new Matrix(M, 1);  //
 		
@@ -55,10 +67,6 @@ final public class QR {
 			}
 			
 		}
-		
-//		Matrix[] a = new Matrix[2];
-//		a[0] = Q; a[1] = R;
-//		return (a);
 	}
     
 	public Matrix Q() { return this.Q; }
@@ -69,20 +77,23 @@ final public class QR {
 	public static void main(String[] args) {
 		Matrix A = Matrix.random(3, 3);
 		A.show();
-		System.out.println("\n\n");
-
+		System.out.println("\n");
+        
 		QR B = new QR(A);
-		B.factor();
-		Matrix Q = B.Q();
-		Matrix R = B.R();
-		
-		Q.show();
-		System.out.println("\n\n");
-		R.show();
-		System.out.println("\n\n");
-		Matrix z = Q.times(R);
-		z.show();
-		
+//		B.factor();
+//		Matrix Q = B.Q();
+//		Matrix R = B.R();
+//		
+//		Q.show();
+//		System.out.println("\n\n");
+//		R.show();
+//		System.out.println("\n\n");
+//		Matrix z = Q.times(R);
+//		z.show();
+//		
+//		System.out.println("\n\n");
+		Matrix UT = B.eigen(100); // this integer is the number of iterations
+		UT.show();
 		
 	}
 }
