@@ -84,14 +84,14 @@ final public class QR {
 		B.factor();
 //		Matrix Q = B.Q();
 //		Matrix R = B.R();
-//		
+
 //		Q.show();
 //		System.out.println("\n\n");
 //		R.show();
 //		System.out.println("\n\n");
 //		Matrix z = Q.times(R);
 //		z.show();
-//		
+
 //		System.out.println("\n\n");
 		Matrix UT = B.eigen(1000); // this integer is the number of iterations
 		UT.show();
