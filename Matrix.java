@@ -21,11 +21,14 @@ package matrixanalysis;
  *
  ******************************************************************************/
 
+import java.lang.Math;
+
 final public class Matrix {
     private final int M;             // number of rows
     private final int N;             // number of columns
     public final double[][] data;   // M-by-N array
 
+    
     // create M-by-N matrix of 0's
     public Matrix(int M, int N) {
         this.M = M;
@@ -100,7 +103,16 @@ final public class Matrix {
         return C;
     }
 
-
+    public double max(){
+    	Matrix A = this;
+    	double max = 0;
+        for (int i = 0; i < M; i++)
+            for (int j = 0; j < N; j++)
+            	if (Math.abs(A.data[i][j]) > max)
+            		max = A.data[i][j];
+        return max;
+    }
+    
     // return C = A - B
     public Matrix minus(Matrix B) {
         Matrix A = this;
