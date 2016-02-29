@@ -16,17 +16,18 @@ final public class QR {
     }
     
     
-    public Matrix eigen(int nIter){
+    public Matrix eigen(int nIter, double tolerance){
     	int i = 0;
 		Matrix Eigen = this.Eigen;
 		Eigen = this.R().times(this.Q());
-    	while(i++ < nIter){
+		double MaxLowDiag = Eigen.MaxLowDiag();
+    	while(i++ < nIter && MaxLowDiag > tolerance){
     		QR L = new QR(Eigen);
     		L.factor();
     		Eigen = L.R().times(L.Q());
-    		//System.out.println(Eigen.max());
+    		MaxLowDiag = Eigen.MaxLowDiag();
     	}
-    	System.out.println("Maximum Iterations Reached \n");
+    	System.out.println(i);
     	return Eigen;
     }
 
@@ -77,7 +78,7 @@ final public class QR {
 	
 	
 	public static void main(String[] args) {
-		Matrix A = Matrix.random(3, 3);
+		Matrix A = Matrix.random(9, 9);
 		A.show();
 		System.out.println("\n");
 		QR B = new QR(A);
@@ -93,7 +94,7 @@ final public class QR {
 //		z.show();
 
 //		System.out.println("\n\n");
-		Matrix UT = B.eigen(1000); // this integer is the number of iterations
+		Matrix UT = B.eigen(1000, 0.00001);
 		UT.show();
 		
 	}

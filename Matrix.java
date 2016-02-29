@@ -17,7 +17,13 @@ package matrixanalysis;
  *  A=QR factorization (the matrix Q is the gram-schmidt orthogonal matrix) .factor()
  *  A=LU factorization (lower/upper triangular matrices)
  *  
+ *  To do : 
+ *  Finish setting up LU class
+ *   - Make backward solver
+ *   - Make forward solver
+ *   - Write det function
  *  
+ *  Rename MaxLowDiag and maxLowDiag functions
  *
  ******************************************************************************/
 
@@ -52,8 +58,6 @@ final public class Matrix {
     
     public int M() { return this.M; }
     public int N() { return this.N; }
-    
-    
     
     public void setVal(int i, int j, double val) { this.data[i][j] = val; }
     
@@ -286,34 +290,6 @@ final public class Matrix {
     	return sum;
     }
     
-    // Take base matrix and apply Gram Schimdt to its columns
-//    public Matrix GramSchmidt(){
-//    	Matrix V = this;
-//    	Matrix R = new Matrix(V.M,V.N); // Declare Orthonormal Matrix R
-//    	Matrix q = new Matrix(V.M, 1);  // A column of V to make orthonormal
-//    	Matrix z = new Matrix(V.M, 1);  // A column of R
-//    	double scaleFactor;
-//    	
-//    	int i; int k;
-//    	for(i=0, k=0; i<V.N; i++, k++){ // loop over number of matrix
-//    		q.setCol(0, V.getCol(i));
-//
-//    		for(int j=0; j<k; ++j) {
-//    			scaleFactor = q.inner(R.getCol(j));
-//    			z.setCol(0, R.getCol(j));
-//    			q = q.minus(z.scale(scaleFactor)); // Ugh
-//    			
-//    		}
-//    		
-//    		scaleFactor = Math.sqrt(q.inner(q));
-//    		if (scaleFactor < 0.01) 
-//    			 continue;
-//    		else R.setCol(i, q.scale( 1 / scaleFactor));
-//    	}
-//    	return R;
-//    }
-
-    
     public Matrix[] LU(){
     	Matrix V = this;
     	Matrix L = new Matrix(V.M,V.N);
@@ -366,51 +342,36 @@ final public class Matrix {
 		return (a);
     }
     
-	public Matrix[] factor(){ // returns gramschmidt / QR decomposition
+    public double MaxLowDiag() {
+    	int N = this.N;
 		Matrix V = this;
-		Matrix Q = new Matrix(V.M,V.N); // Declare Orthonormal Matrix Q (ie the gramschmidt)
-		Matrix R = new Matrix(V.M,V.N); // Declare UT matrix of operations R
-
-		Matrix q = new Matrix(V.M, 1);  // A column of V to make orthonormal
-		Matrix z = new Matrix(V.M, 1);  //
-		
-		double scaleFactor;
-		
-		int i; int k;
-		for(i=0, k=0; i<V.N; i++, k++){ // loop over number of matrix
-			q = V.getCol(i);  // grab the ith column of V
-	
-			for(int j=0; j<k; ++j) {
-				z = Q.getCol(j);
-				scaleFactor = V.getCol(i).inner(z); 
-				z = z.scale(scaleFactor / z.inner(z) );
-    			q = q.minus(z);
-			}
-			
-			scaleFactor = Math.sqrt(q.inner(q));
-			if (scaleFactor < 0.001){
-				for(int j=0; j<k; ++j) {
-					R.data[j][i] = Q.getCol(j).inner(V.getCol(i)); // set the off diagonal entries of the ith column of R
+		double maxElem = 0;
+		for (int i=0; i < N; ++i) {
+			for (int j=i+1; j < N; ++j) {
+				if (Math.abs(V.data[j][i]) > maxElem) {
+					maxElem = Math.abs(V.data[j][i]);
 				}
-				 continue; 
 			}
-			
-			else Q.setCol(i, q.scale( 1 / scaleFactor));
-			
-			R.data[i][k] = Q.getCol(i).inner(V.getCol(i)); // set the diagonal entry of R
-			
-			for(int j=0; j<k; ++j) {
-				R.data[j][i] = Q.getCol(j).inner(V.getCol(i)); // set the off diagonal entries of the ith column of R
-			}
-			
 		}
-		
-		Matrix[] a = new Matrix[2];
-		a[0] = Q; a[1] = R;
-		return (a);
+		return maxElem;
+    }
+    
+	public int[] maxLowDiag() {
+		int N = this.N;
+		Matrix V = this;
+		int[] max = new int[2];
+		double maxElem = 0;
+		for (int i=0; i < N; ++i) {
+			for (int j=i+1; j < N; ++j) {
+				if (Math.abs(V.data[j][i]) > maxElem) {
+					maxElem = Math.abs(V.data[j][i]);
+					max[0] = j; max[1] = i;
+				}
+			}
+		}
+		return max;
 	}
-    
-    
+	
     // test client
     public static void main(String[] args) {
 
