@@ -19,13 +19,12 @@ final public class QR {
     public Matrix eigen(int nIter){
     	int i = 0;
 		Matrix Eigen = this.Eigen;
-    	QR L = new QR(V);
-    	L.factor();
+		Eigen = this.R().times(this.Q());
     	while(i++ < nIter){
+    		QR L = new QR(Eigen);
+    		L.factor();
     		Eigen = L.R().times(L.Q());
-    		Eigen.show();
-    		System.out.println(Eigen.max());
-    		//L = new QR(Eigen);
+    		//System.out.println(Eigen.max());
     	}
     	System.out.println("Maximum Iterations Reached \n");
     	return Eigen;
@@ -94,7 +93,7 @@ final public class QR {
 //		z.show();
 //		
 //		System.out.println("\n\n");
-		Matrix UT = B.eigen(100); // this integer is the number of iterations
+		Matrix UT = B.eigen(1000); // this integer is the number of iterations
 		UT.show();
 		
 	}
