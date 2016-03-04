@@ -21,11 +21,6 @@ public class LU {
     	U.setRow(0, V.getRow(0)); // set the first row of U
     	
     	L.setCol(0, V.getCol(0).scale(1 / U.val(0, 0)));
-    	
-//    	for(int i = 0; i<V.M; i++){ // set first column of L
-//    		L.data[i][0] = V.data[i][0]/U.data[0][0];
-//    	}
-    	
 
     	int i; int j; int k; double sum = 0;
     	for(i=1; i<M; i++){
@@ -41,8 +36,8 @@ public class LU {
     			L.data[i][j]= (1/U.data[j][j])*(V.data[i][j] - sum);}
     		}
     		
-    		if(i>0 && i<V.M-1){ // set the off diagonals of U
-    			for(j=i+1;j<V.M;j++){
+    		if(i>0 && i<M-1){ // set the off diagonals of U
+    			for(j=i+1;j<M;j++){
 	    			sum = 0;
 	    			k=0;
 	    			while(k<i){
@@ -62,18 +57,77 @@ public class LU {
     		}
     }
     
-    public Matrix solve(Matrix vector) {// back substitution
-	    Matrix V = this.V;
-	    Matrix L = this.L;
+	public Matrix L() { return this.L; }
+	
+	public Matrix U() { return this.U; }
+	
+	public Matrix backsub(Matrix vector){
 	    Matrix U = this.U;
-	    int N = V.N(); int M = V.M();
+	    int N = U.N(); int M = U.M();
     	Matrix x = new Matrix(N, 1);
 	    for (int j = N - 1; j >= 0; j--) {
 	        double t = 0.0;
-	        for (int k = j + 1; k < N; k++)
-	            t += A.data[j][k] * x.data[k][0];
-	        x.data[j][0] = (b.data[j][0] - t) / A.data[j][j];
+	        for (int k = j + 1; k < N; k++){
+	            t += U.data[j][k] * x.data[k][0];
+	            }
+	        x.data[j][0] = (vector.data[j][0] - t) / U.data[j][j];
 	    }
 	    return x;
-    }
+	}
+	
+	public Matrix forwardsub(Matrix vector){
+	    Matrix L = this.L;
+	    int N = L.N(); int M = L.M();
+    	Matrix x = new Matrix(N, 1);
+	    for (int j = 0; j < M; j++) {
+	        double t = 0.0;
+	        for (int k = 0; k <= j; k++){
+	            t += L.data[j][k] * x.data[k][0];
+	            //System.out.println(k);
+	            }
+	        x.data[j][0] = (vector.data[j][0] - t);
+	        //x.show();
+	        //System.out.println("\n");
+	    }
+	    return x;
+	}
+    
+	public Matrix LUsolve(Matrix vector){
+    	Matrix L = this.L;
+    	LU current = this;
+    	
+	    int N = L.N(); //int M = L.M();
+    	Matrix x = new Matrix(N, 1);
+    	
+    	Matrix y = current.forwardsub(vector);
+    	x = current.backsub(y);
+    	
+    	return(x);
+    	
+	}
+    
+	public static void main(String[] args) {
+		//Matrix A = Matrix.random(3, 3);
+		//Matrix b = Matrix.random(3, 1);
+		//double[][] a = {{5,9,8}, {0,2, 8},  {0,0,1} };
+      double[][] a = {{5,0,0}, {2, 8, 0},  {3, 9,8} };
+      Matrix A = new Matrix(a);;
+      double[][] b = { {5}, {7}, {8}};
+      Matrix B = new Matrix(b);
+		
+		A.show();
+		System.out.println("\n");
+		B.show();
+		System.out.println("\n");
+		
+		LU Z = new LU(A);
+		Z.factor();
+		
+		System.out.println("\n");
+
+		A.times(Z.LUsolve(B)).show();
+	}
+    
 }
+
+
