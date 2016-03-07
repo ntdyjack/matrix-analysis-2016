@@ -12,18 +12,19 @@ public class LU {
     	this.U = new Matrix(M,N);
     }
     
+    
     public void factor(){
     	Matrix V = this.V;
     	Matrix L = this.L;
     	Matrix U = this.U;
-    	int N = V.N(); int M = V.M();
+    	int N = V.N();
     	
     	U.setRow(0, V.getRow(0)); // set the first row of U
     	
     	L.setCol(0, V.getCol(0).scale(1 / U.val(0, 0)));
 
     	int i; int j; int k; double sum = 0;
-    	for(i=1; i<M; i++){
+    	for(i=1; i<N; i++){
     		
     		if(i>1){ //set the off diagonals of L
     			for(j=1;j<i;j++){
@@ -36,8 +37,8 @@ public class LU {
     			L.data[i][j]= (1/U.data[j][j])*(V.data[i][j] - sum);}
     		}
     		
-    		if(i>0 && i<M-1){ // set the off diagonals of U
-    			for(j=i+1;j<M;j++){
+    		if(i>0 && i<N-1){ // set the off diagonals of U
+    			for(j=i+1;j<N;j++){
 	    			sum = 0;
 	    			k=0;
 	    			while(k<i){
@@ -61,9 +62,9 @@ public class LU {
 	
 	public Matrix U() { return this.U; }
 	
-	public Matrix backsub(Matrix vector){
+	private Matrix backsub(Matrix vector){
 	    Matrix U = this.U;
-	    int N = U.N(); int M = U.M();
+	    int N = U.N();
     	Matrix x = new Matrix(N, 1);
 	    for (int j = N - 1; j >= 0; j--) {
 	        double t = 0.0;
@@ -75,7 +76,7 @@ public class LU {
 	    return x;
 	}
 	
-	public Matrix forwardsub(Matrix vector){
+	private Matrix forwardsub(Matrix vector){
 	    Matrix L = this.L;
 	    int N = L.N(); int M = L.M();
     	Matrix x = new Matrix(N, 1);
@@ -106,12 +107,23 @@ public class LU {
     	
 	}
     
+	public double det() {
+		int N = this.V.N();
+		if (L == new Matrix(N, N))
+			this.factor();
+		double det=1;
+		for (int i=0; i<N; ++i)
+			det *= this.L.data[i][i] * this.U.data[i][i];
+		return det;
+	}
+	
 	public static void main(String[] args) {
 		//Matrix A = Matrix.random(3, 3);
 		//Matrix b = Matrix.random(3, 1);
 		//double[][] a = {{5,9,8}, {0,2, 8},  {0,0,1} };
-      double[][] a = {{5,0,0}, {2, 8, 0},  {3, 9,8} };
-      Matrix A = new Matrix(a);;
+      double[][] a = {{5,0,7}, {2, 8, 9},  {3, 9,8} };
+      Matrix A = new Matrix(a);
+      A = A.times(A.T());
       double[][] b = { {5}, {7}, {8}};
       Matrix B = new Matrix(b);
 		
@@ -122,10 +134,17 @@ public class LU {
 		
 		LU Z = new LU(A);
 		Z.factor();
+
+		System.out.println();
+		Z.L().show();
+		System.out.println();
+		Z.U().show();
 		
 		System.out.println("\n");
-
+	
 		A.times(Z.LUsolve(B)).show();
+		
+		System.out.println(Z.det());
 	}
     
 }
