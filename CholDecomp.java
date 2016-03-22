@@ -1,5 +1,7 @@
 package matrixanalysis;
 
+import java.io.FileNotFoundException;
+
 public class CholDecomp {
 	
 	private final Matrix L;
@@ -35,17 +37,26 @@ public class CholDecomp {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		Matrix A = Matrix.random(5,5);
 		A = A.times(A.T());
-		A.show();
-		System.out.println();
+		//A.show();
+		//System.out.println();
 		
 		CholDecomp CD = new CholDecomp(A);
 		CD.factor();
 		Matrix L = CD.L();
-		L.show();
+		//L.show();
+		//System.out.println();
+		//L.times(L.T()).show();
+		//String "matrixanalysis/iris.csv";
+		//CholDecomp CD = new CholDecomp(A);
+		CSVread R = new CSVread();
+		Matrix [] Iris = R.go();
+		Iris[0].show();
 		System.out.println();
-		L.times(L.T()).show();
+		Iris[1].show();
+		System.out.println();
+		Iris[2].show();
 	}
 }
