@@ -21,7 +21,7 @@ public class CSVread  {
 
 		Matrix [] Iris = new Matrix[3];
 		
-        Scanner scanner = new Scanner(new File("matrixanalysis/iris.csv"));
+        Scanner scanner = new Scanner(new File("/home/nikwoj/workspace/matrix-analysis-2016/matrixanalysis/iris.csv"));
         scanner.useDelimiter(",|\n");
         int counter = 0;
         int colnum = 0;

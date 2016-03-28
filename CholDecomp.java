@@ -45,18 +45,12 @@ public class CholDecomp {
 		
 		CholDecomp CD = new CholDecomp(A);
 		CD.factor();
-		Matrix L = CD.L();
+		//Matrix L = CD.L();
 		//L.show();
 		//System.out.println();
 		//L.times(L.T()).show();
 		//String "matrixanalysis/iris.csv";
 		//CholDecomp CD = new CholDecomp(A);
-		CSVread R = new CSVread();
-		Matrix [] Iris = R.go();
-		Iris[0].show();
-		System.out.println();
-		Iris[1].show();
-		System.out.println();
-		Iris[2].show();
+
 	}
 }

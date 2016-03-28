@@ -1,5 +1,5 @@
 package matrixanalysis;
-
+import java.lang.Math;
 
 
 /******************************************************************************
@@ -395,6 +395,8 @@ final public class Matrix {
         Matrix B = L.times(U);
         System.out.println("LU =");
         B.show();
+        
+        System.out.println(Double.NaN);
         
 //        System.out.format("%d%n", B.shape()[0]);
     }
