@@ -4,7 +4,9 @@ import java.lang.Double;
 import java.lang.Math;
 
 public class broken_covariance {
-	
+	// Takes in a N x M matrix and produces an M x M matrix
+	//
+	//
 	private final Matrix A;
 	private final int N;
 	private final int M;
@@ -51,7 +53,7 @@ public class broken_covariance {
 	public void fix() {
 		Matrix A = this.A;
 		Matrix V = this.V;
-		int N = this.N; int M = this.M;
+		int M = this.M;
 //		Matrix vec1 = new Matrix(1,N); Matrix vec2 = new Matrix(1,N);
 //		int[] miss1 = new int[N]; int[] miss2 = new int[N]; int[] miss = new int[N];
 		
@@ -77,25 +79,48 @@ public class broken_covariance {
 	}
 	
 	public static void main(String args[]) {
-		CSVread R = new CSVread();
 		try {
-			Matrix [] Iris = R.go();
-			int N = Iris[0].N(); int M = Iris[0].M();
-			Matrix use = Iris[1];
+			CSVread read = new CSVread();
+			//pass the file path, are there colnames? are there rownames?
+			Matrix use = read.go("/home/nikwoj/workspace/matrix-analysis-2016/matrixanalysis/DSGaggregate.csv",true,true);
+			use = use.T();
+			int N = use.N(); int M = use.M();
+			System.out.println(N);
+			System.out.println(M);
+			System.out.println("A");
+			
 			
 			for(int i=0; i<N; ++i) {
 				for(int j=0; j<M; ++j) {
-					if(Math.random() < .1) {
+					if(Math.random() < .5) {
 						use.data[j][i] = Double.NaN;
 					}
 				}
 			}
 			
+			double mean = 0; double count = 0;
+			for(int i=0; i<M; ++i) {
+				mean = 0; count = 0;
+				for(int j=0; j<N; ++j) {
+					if(!Double.isNaN(use.data[i][j]))
+						mean += use.data[i][j];
+						count += 1;
+				}
+				mean *= 1 / count;
+				System.out.println(mean);
+				for(int j=0; j<N; ++j) {
+					use.data[i][j] -= mean;
+				}
+			}
+			
+//			System.out.println("A");
+
 			broken_covariance A = new broken_covariance(use);
 			A.fix();
 			
 			System.out.println("\n\n");
-			
+//			System.out.println("A");
+
 			A.V.show();
 			System.out.println("\n\n");
 
