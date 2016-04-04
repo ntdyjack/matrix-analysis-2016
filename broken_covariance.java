@@ -41,12 +41,19 @@ public class broken_covariance {
 	private double multiply_vec(Matrix vec1, Matrix vec2, int[] miss) {
 		double entry=0;
 		int N = this.N;
+		double mean1 = 0; double mean2 = 0; int count = 0;
 		for(int i=0; i<N; ++i) {
 			if(miss[i] > 0)
 				continue;
-			else
+			else {
+				count += 1;
+				mean1 += vec1.data[0][i];
+				mean2 += vec2.data[0][i];
 				entry += vec1.data[0][i] * vec2.data[0][i];
+			}
 		}
+		entry *= (1 / count);
+		entry += (-1) * (mean1 * mean2) / count;
 		return entry;
 	}
 	
@@ -85,41 +92,35 @@ public class broken_covariance {
 			Matrix use = read.go("/home/nikwoj/workspace/matrix-analysis-2016/matrixanalysis/DSGaggregate.csv",true,true);
 			use = use.T();
 			int N = use.N(); int M = use.M();
-			System.out.println(N);
-			System.out.println(M);
-			System.out.println("A");
 			
 			
-			for(int i=0; i<N; ++i) {
-				for(int j=0; j<M; ++j) {
-					if(Math.random() < .5) {
-						use.data[j][i] = Double.NaN;
-					}
-				}
-			}
+//			for(int i=0; i<N; ++i) {
+//				for(int j=0; j<M; ++j) {
+//					if(Math.random() < .5) {
+//						use.data[j][i] = Double.NaN;
+//					}
+//				}
+//			}
 			
-			double mean = 0; double count = 0;
-			for(int i=0; i<M; ++i) {
-				mean = 0; count = 0;
-				for(int j=0; j<N; ++j) {
-					if(!Double.isNaN(use.data[i][j]))
-						mean += use.data[i][j];
-						count += 1;
-				}
-				mean *= 1 / count;
-				System.out.println(mean);
-				for(int j=0; j<N; ++j) {
-					use.data[i][j] -= mean;
-				}
-			}
+//			double mean = 0; double count = 0;
+//			for(int i=0; i<M; ++i) {
+//				mean = 0; count = 0;
+//				for(int j=0; j<N; ++j) {
+//					if(!Double.isNaN(use.data[i][j]))
+//						mean += use.data[i][j];
+//						count += 1;
+//				}
+//				mean *= 1 / count;
+//				for(int j=0; j<N; ++j) {
+//					use.data[i][j] -= mean;
+//				}
+//			}
 			
-//			System.out.println("A");
 
 			broken_covariance A = new broken_covariance(use);
 			A.fix();
 			
 			System.out.println("\n\n");
-//			System.out.println("A");
 
 			A.V.show();
 			System.out.println("\n\n");
