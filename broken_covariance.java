@@ -52,8 +52,8 @@ public class broken_covariance {
 				entry += vec1.data[0][i] * vec2.data[0][i];
 			}
 		}
-		entry *= (1 / count);
-		entry += (-1) * (mean1 * mean2) / count;
+		entry /= count;
+		entry -= (mean1 / count) * (mean2 / count);
 		return entry;
 	}
 	
