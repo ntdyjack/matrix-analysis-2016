@@ -1,7 +1,6 @@
 package matrixanalysis;
 import java.io.FileNotFoundException;
 import java.lang.Double;
-import java.lang.Math;
 
 public class broken_covariance {
 	// Takes in a N x M matrix and produces an M x M matrix
@@ -91,8 +90,7 @@ public class broken_covariance {
 			//pass the file path, are there colnames? are there rownames?
 			Matrix use = read.go("/home/nikwoj/workspace/matrix-analysis-2016/matrixanalysis/DSGaggregate.csv",true,true);
 			use = use.T();
-			int N = use.N(); int M = use.M();
-			
+			int N = use.M();
 			
 //			for(int i=0; i<N; ++i) {
 //				for(int j=0; j<M; ++j) {
@@ -121,14 +119,35 @@ public class broken_covariance {
 			A.fix();
 			
 			System.out.println("\n\n");
-
 			A.V.show();
+			Matrix V = A.V;
 			System.out.println("\n\n");
 
 			JacRot B = new JacRot(A.V);
 			
 			B.factor(2000, 0.00001);
-			B.A.show();
+			Matrix dd = B.A;
+			
+			dd.show();
+			System.out.println("\n\n");
+			
+			
+			for(int i=0; i<N; ++i) {
+				if(dd.data[i][i] < 100) { 
+					dd.data[i][i] = 100.0; 
+				}
+			}
+			
+			Matrix AA = B.D.T().times(dd.times(B.D));
+			Matrix C = AA.plus(V.scale(-1));
+			
+			double sum = 0;
+			for(int i=0; i<N; ++i) {
+				for(int j=0; j<N; ++j) 
+					sum += Math.abs(C.data[i][j]);
+			}
+			System.out.println(sum);
+			C.show();
 			
 			System.out.println("\n\n");
 			//Iris[0].show();
