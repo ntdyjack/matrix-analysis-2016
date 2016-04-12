@@ -80,6 +80,20 @@ final public class Matrix {
         return I;
     }
 
+    //return the l2 norm of a row(or column) vector
+    public double l2norm(){
+    	double norm = 0;
+    	if(M!=1 && N!=1) throw new RuntimeException("not a row or column vector");
+    	
+    	if(N>M){ //we have a row vector
+    		for(int i =0; i<N; i++){norm += Math.pow(this.data[0][i],2);}
+    	}
+    	else{ //we have a column vector
+    		for(int i =0; i<M; ++i){norm += Math.pow(this.data[i][0],2);}
+    	}
+    	return Math.sqrt(norm);
+    }
+    
     // swap rows i and j
     private void swap(int i, int j) {
         double[] temp = data[i];
@@ -290,6 +304,19 @@ final public class Matrix {
     	return sum;
     }
     
+    public Matrix outer(Matrix W){
+    	Matrix V = this;
+    	if (V.M != W.N) throw new RuntimeException("Dimensions must be same");
+    	Matrix OP = new Matrix(V.N,W.M);
+    	for(int i = 0; i<V.N;++i){
+    		for(int j = 0; j<W.M;++j){
+    			OP.data[i][j] = V.data[0][i]*W.data[j][0];
+    		}
+    	}
+    	
+    	return OP;
+    }
+    
     public Matrix[] LU(){
     	Matrix V = this;
     	Matrix L = new Matrix(V.M,V.N);
@@ -377,26 +404,33 @@ final public class Matrix {
 
 //        double[][] a = { {1, 2, 3, 4}, {4, 5, 6, 4}, {7, 8, 9, 4} };
 //        Matrix A = new Matrix(a);
-        //double[][] a = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
+
+//    	
+//        System.out.println("A =");
+//        A.show();
+//        System.out.println();
+//        
+//        Matrix[] Q = A.LU(); // call QR factorization
+//        Matrix L = Q[0]; Matrix U= Q[1];
+//        System.out.println("L =");
+//        L.show();
+//        System.out.println();
+//        System.out.println("U =");
+//        U.show();
+//        System.out.println();
+//        Matrix B = L.times(U);
+//        System.out.println("LU =");
+//        B.show();
+        
+    	//Matrix A = Matrix.random(1,4);
+        //double[][] a = { {1, 2, 3}};
         //Matrix A = new Matrix(a);
-    	Matrix A = Matrix.random(4,4);
-        System.out.println("A =");
-        A.show();
-        System.out.println();
-        
-        Matrix[] Q = A.LU(); // call QR factorization
-        Matrix L = Q[0]; Matrix U= Q[1];
-        System.out.println("L =");
-        L.show();
-        System.out.println();
-        System.out.println("U =");
-        U.show();
-        System.out.println();
-        Matrix B = L.times(U);
-        System.out.println("LU =");
-        B.show();
-        
-        System.out.println(Double.NaN);
+    	//A.show();
+        //A.show();
+        //A.outer(A.T()).show();
+    	//System.out.println(A.l2norm());
+    	//A.T().show();
+    	//System.out.println(A.T().l2norm());
         
 //        System.out.format("%d%n", B.shape()[0]);
     }
