@@ -72,6 +72,19 @@ final public class Matrix {
         return A;
     }
 
+    public boolean iszero(){
+    	boolean val = true;
+    	
+    	for (int i = 0; i < M; ++i){
+    		for (int j= 0; j < N; ++j){
+    			if(this.data[i][j] != 0) {
+    				val = false;
+    				break;}
+    		}
+    	}
+    	return val;
+    }
+    
     // create and return the N-by-N identity matrix
     public static Matrix identity(int N) {
         Matrix I = new Matrix(N, N);

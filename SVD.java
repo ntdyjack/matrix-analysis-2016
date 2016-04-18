@@ -21,21 +21,23 @@ public class SVD {
 	}
 	
 	public double [] rot(double f, double g){
-		double c; double s; double r;
-		if(f == 0){
+		double c; double s; double r; double t; double t1;
+		if(Math.abs(f) < 0.00001){
 			c = 0; s = 1; r = g;
 		}
 		else if(Math.abs(f)>Math.abs(g)){
-			double t = Math.sqrt(1 + Math.pow(g/f,2));
-			c = 1/t;
+			t = g/f;
+			t1 = Math.sqrt(1 + Math.pow(t,2));
+			c = 1/t1;
 			s = t*c;
-			r = f*t;
+			r = f*t1;
 		}
 		else{
-			double t = Math.sqrt(1 + Math.pow(f/g,2));
-			s = 1/t;
+			t = f/g;
+			t1 = Math.sqrt(1 + Math.pow(t,2));
+			s = 1/t1;
 			c = t*s;
-			r = g*t;
+			r = g*t1;
 		}
 		double [] vect = new double [3];
 		vect [0] = c; vect [1] = s; vect [2] = r;
@@ -51,9 +53,11 @@ public class SVD {
 		Matrix Q;
     	SVD L = new SVD(A);
     	L.bidiagonalize();
-    	L.B.show();
-    	// Demmel & Kahan zero-shift QR downward sweep
+    	
+    	
+    	for(int j = 0; j<500; ++j){
     	for( int k = 0; k < M-1; ++k){
+    		
     		rotation = rot(L.B.data[k][k],L.B.data[k][k+1]);
     		c = rotation[0]; s = rotation [1]; r = rotation[2];
     		
@@ -65,39 +69,30 @@ public class SVD {
     		
     		Q.data[k][k] = c;
     		Q.data[k+1][k+1] = c;
-    		Q.data[k][k+1] = -s;
-    		Q.data[k+1][k] = s;
+    		Q.data[k][k+1] = s;
+    		Q.data[k+1][k] = -s;
     		
-    		//L.B.show();
-    		//System.out.println("\n");
-    		//		(k:k+1,k:k+1)=[c s;-s c];
-    		//L.B = L.B.times(Q.T());
-    		
+    		L.B = L.B.times(Q.T());
+    		L.V = Q.T().times(L.V);
     		
     		// construct matrix Q and multiply on the left by Q
     		// This annihilates B(k+1,k) but makes B(k,k+1) and
     		// B(k,k+2) non-zero
-    		
-    		//L.B.show();
-    		//System.out.println("\n");
-    		
-    		rotation = rot(L.B.data[k][k],L.B.data[k][k+1]);
+    		rotation = rot(L.B.data[k][k],L.B.data[k+1][k]);
     		c = rotation[0]; s = rotation [1]; r = rotation[2];
     		
-    		Q = Matrix.identity(M);
+    		Q = Matrix.identity(N);
     		
     		Q.data[k][k] = c;
     		Q.data[k+1][k+1] = c;
-    		Q.data[k][k+1] = -s;
-    		Q.data[k+1][k] = s;
+    		Q.data[k][k+1] = s;
+    		Q.data[k+1][k] = -s;
     		
-    		//System.out.println("\n");
-    		//Q.show();
-    		
+    		L.U = L.U.times(Q);
     		L.B = Q.times(L.B);
     	}
-		
-		UBV[0] = U; UBV[1] = B; UBV[2] = V;
+    	}
+		UBV[0] = L.U; UBV[1] = L.B; UBV[2] = L.V;
 		return UBV;
 	}
 	
@@ -133,6 +128,9 @@ public class SVD {
 			 sign = (int) Math.signum(A.data[k][k+1]);
 			 alphak = -sign*vk.l2norm();
 			vk.data[0][k+1] += alphak;
+			
+			if(vk.iszero()==true){break;} // check if it's all zero and skip if yes
+			
 			wk = vk.scale(1/vk.l2norm());
 			Kk = Matrix.identity(N).minus(wk.outer(wk.T()).scale(2));
 			//compute updated B and V
@@ -146,20 +144,22 @@ public class SVD {
     	
       //double[][] a = { {4, 3, 0, 2}, {2, 1, 2, 1}, {4, 4, 0, 3} };
       //Matrix A = new Matrix(a);
-    	Matrix A = Matrix.random(4, 4);
-    	
+    	Matrix A = Matrix.random(3, 3);
+    	A.show();
+    	System.out.println("\n");
     	
     	SVD B = new SVD(A);
-    	B.factor();
-    	//B.bidiagonalize();
-    	//B.B.show();
-    	//Matrix [] UBV = B.factor();
-    	//UBV[1].show();
-//    	System.out.println("\n");
-//    	B.B.show();
-//    	System.out.println("\n");
-//    	B.V.show();
-    	//B.U.times(B.B).times(B.V.T()).show();
+    	Matrix [] vals = B.factor();
+    	
+    	vals[0].show();
+    	System.out.println("\n");
+    	vals[1].show();
+    	System.out.println("\n");
+    	vals[2].show();
+    	System.out.println("\n");
+    	//Matrix S = vals[0].times(vals[1]);
+    	//S.times(vals[2]).show();
+    	//(vals[0].times(vals[1])).times(vals[2]).show();
     	
     }
 	
